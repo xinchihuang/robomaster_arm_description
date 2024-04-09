@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<robot name="robomaster_ep_arm" xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#xacro">
+  <!--xacro:include filename="$(find robomaster_description)/urdf/robomaster_ep.gazebo.xacro"/-->
+
+  <xacro:arg name="name" default=""/>
+  <xacro:property name="_name" value="$(arg name)"/>
+  <xacro:if value="${_name != ''}">
+    <xacro:property name="tf_prefix" value="${_name}/"/>
+  </xacro:if>
+  <xacro:if value="${_name == ''}">
+    <xacro:property name="tf_prefix" value=""/>
+  </xacro:if>
+  <xacro:arg name="camera_yaw" default="0.0"/>
+
+  <!-- component -->>
+  <xacro:include filename="base.urdf.xacro"/>
+  <xacro:include filename="intelligent_controller.urdf.xacro"/>
+<!--  <xacro:include filename="extension.urdf.xacro"/>-->
+  <xacro:include filename="box.urdf.xacro"/>
+  <xacro:include filename="$(find robot_arm_description)/urdf/robot_arm.xacro"/>
+  <xacro:base tf_prefix="${tf_prefix}"/>
+  <xacro:extension tf_prefix="${tf_prefix}" use_rear_extension="true"/>
+  <xacro:box_ex tf_prefix="${tf_prefix}"/>
+  <xacro:intelligent_controller tf_prefix="${tf_prefix}" mount="extension"/>
+
+  <gazebo>
+    <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <odometryRate>20.0</odometryRate>
+      <robotBaseFrame>base_footprint</robotBaseFrame>
+    </plugin>
+
+
+  <plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
+    <updateRate>50.0</updateRate>
+  </plugin>
+
+
+  </gazebo>
+</robot>
+
+
+

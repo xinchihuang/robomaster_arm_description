@@ -1,0 +1,44 @@
+<launch>
+  <arg name="first_rm" default="rm_0"/>
+  <arg name="first_rm_x_pos" default="2.0"/>
+  <arg name="first_rm_y_pos" default="0.0"/>
+  <arg name="first_rm_z_pos" default="0.0"/>
+  <arg name="first_rm_yaw" default="0.0"/>
+
+  <!-- Include the Gazebo world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <group ns="$(arg first_rm)">
+    <!-- Define robot_description before using it in controller_manager and spawn_model -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find robomaster_arm_description)/urdf/robomaster_ep_arm.urdf.xacro" />
+
+    <!-- Load ros_control configuration -->
+    <rosparam file="$(find robot_arm_description)/launch/controller.yaml" command="load"/>
+
+    <!-- Start the controller manager -->
+    <node name="controller_manager" pkg="controller_manager" type="controller_manager" respawn="false" output="screen" />
+
+    <!-- Robot state publisher -->
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
+      <param name="publish_frequency" value="50.0" />
+      <param name="tf_prefix" value="$(arg first_rm)" />
+    </node>
+
+    <!-- Joint state publisher GUI (if needed for debugging or simulation) -->
+    <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" output="screen"/>
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" output="screen"/>
+
+    <!-- Controller Spawner -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+          args="Revolute2_position_controller Revolute6_position_controller Revolute10_position_controller joint_state_controller"/>
+
+    <!-- Spawn the robot model in Gazebo -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg first_rm) -x $(arg first_rm_x_pos) -y $(arg first_rm_y_pos) -z $(arg first_rm_z_pos) -Y $(arg first_rm_yaw) -param robot_description" />
+  </group>
+</launch>

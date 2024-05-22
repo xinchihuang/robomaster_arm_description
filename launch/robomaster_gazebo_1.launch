@@ -1,7 +1,8 @@
 <launch>
   <!-- Load the URDF/xacro model of the robot -->
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find robomaster_arm_description)/urdf/robomaster_ep_arm.urdf" />
-  <param name="ball_description" command="$(find xacro)/xacro $(find robomaster_arm_description)/urdf/ball.urdf"/>
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find robomaster_arm_description)/urdf/robomaster_ep_arm.urdf" />
+  <param name="ball_description" command="$(find xacro)/xacro $(find robomaster_arm_description)/urdf/ball.sdf"/>
 <!--  &lt;!&ndash; Use joint_state_publisher_gui to publish joint states &ndash;&gt;-->
 <!--  <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"/>-->
 
@@ -10,10 +11,15 @@
 
   <!-- Load the robot arm controller configurations -->
   <rosparam file="$(find robot_arm_description)/launch/controller.yaml" command="load" ns="robot_arm_controller"/>
-
+   <arg name="update_rate" default="2000"/>
+    <arg name="step_size" default="0.0005"/>
   <!-- Include the Gazebo launch file -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-   <arg name="physics" value="ode"/>
+<!--   <arg name="world_name" value="$(find robomaster_arm_description)/urdf/falling_ball.world"/>-->
+
+    <env name="GAZEBO_PHYSICS" value="ode"/>
+    <env name="GAZEBO_PHYSICS_UPDATE_RATE" value="$(arg update_rate)"/>
+    <env name="GAZEBO_PHYSICS_MAX_STEP_SIZE" value="$(arg step_size)"/>
   </include>
 
 <!--   <node name="spawn_custom_ground_plane" pkg="gazebo_ros" type="spawn_model"-->
@@ -21,8 +27,9 @@
 <!--        respawn="false" output="screen"/>-->
 
   <!-- Spawn the robot in Gazebo -->
-  <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model robomaster_ep_arm" />
-  <node name="spawn_ball" pkg="gazebo_ros" type="spawn_model" args="-param ball_description -urdf -model ball  -x 1 -y 0 -z 50"/>
+  <node name="spawn_robot1" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model robomaster_ep_arm  -x 0 -y 0 -z 0" />
+  <node name="spawn_robot2" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model robomaster_ep_arm  -x 1 -y 0 -z 0" />
+  <node name="spawn_ball" pkg="gazebo_ros" type="spawn_model" args="-param ball_description -sdf -model ball  -x 1 -y 0 -z 50"/>
   <!-- Load and start the controllers -->
  <node name="controller_spawner" pkg="controller_manager" type="spawner" args="/robot_arm_controller/Revolute2_position_controller /robot_arm_controller/Revolute6_position_controller /robot_arm_controller/Revolute10_position_controller" />
 

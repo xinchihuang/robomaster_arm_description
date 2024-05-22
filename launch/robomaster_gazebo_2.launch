@@ -1,0 +1,37 @@
+<launch>
+    <arg name="robot1"  default="robot1"/>
+    <arg name="robot2"  default="robot2"/>
+
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find robomaster_arm_description)/urdf/robomaster_ep_arm.urdf" />
+    <param name="ball_description" command="$(find xacro)/xacro $(find robomaster_arm_description)/urdf/ball.sdf"/>
+
+
+<!--  <rosparam file="$(find robot_arm_description)/launch/controller.yaml" command="load" ns="robot_arm_controller"/>-->
+
+  <!-- Include the Gazebo launch file -->
+    <env name="GAZEBO_MAX_UPDATE_RATE" value="500"/>
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+         <arg name="world_name" value="$(find robomaster_arm_description)/world/empty_world.world"/>
+    </include>
+
+   <node name="spawn_ball" pkg="gazebo_ros" type="spawn_model" args="-param ball_description -sdf -model ball  -x 1 -y 0 -z 50"/>
+  <!-- Load and start the controllers -->
+<!--   <node name="controller_spawner" pkg="controller_manager" type="spawner" args="/robot_arm_controller/Revolute2_position_controller /robot_arm_controller/Revolute6_position_controller /robot_arm_controller/Revolute10_position_controller" />-->
+
+<!--    <node name="spawn_robot1" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model robomaster_ep_arm  -x 0 -y 0 -z 0" />-->
+
+
+
+    <group ns = "$(arg robot1)">
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find robomaster_arm_description)/urdf/robomaster_ep_arm.urdf" />
+        <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model robot1  -x 0 -y 0 -z 0" />
+        <rosparam file="$(find robot_arm_description)/launch/controller.yaml" command="load"/>
+        <node name="controller_spawner" pkg="controller_manager" type="spawner" args="Arm_position_controller" />
+    </group>
+    <group ns = "$(arg robot2)">
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find robomaster_arm_description)/urdf/robomaster_ep_arm.urdf" />
+        <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model robot2 -x 1 -y 0 -z 0" />
+        <rosparam file="$(find robot_arm_description)/launch/controller.yaml" command="load"/>
+        <node name="controller_spawner" pkg="controller_manager" type="spawner" args="Arm_position_controller" />
+    </group>
+</launch>

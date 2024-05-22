@@ -1,55 +1,25 @@
 <?xml version="1.0" ?>
 <sdf version="1.6">
-  <world name="default">
-    <!-- Light source -->
-    <include>
-      <uri>model://sun</uri>
-    </include>
-    <physics type='bullet'>
-      <max_vel>0.2</max_vel> <!-- 接触最大误差 -->
-      <min_depth>0.001</min_depth> <!-- 接触表面层厚度 -->
-    </physics>
-    <!-- Ground plane -->
-    <model name="ground_plane">
-      <static>true</static>
-      <link name="link">
-        <collision name="collision">
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>100 100</size>
-            </plane>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
-              </ode>
-            </friction>
-            <bounce/>
-            <contact>
-              <ode/>
-            </contact>
-          </surface>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>100 100</size>
-            </plane>
-          </geometry>
-          <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Grey</name>
-            </script>
-          </material>
-        </visual>
-      </link>
-    </model>
+    <world name="my_world">
+        <!-- Define light source -->
+        <include>
+            <uri>model://sun</uri>
+        </include>
 
+        <!-- Define a simple ground plane -->
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
 
-  </world>
+        <!-- Physics settings -->
+        <physics type="ode">
+            <max_step_size>0.0001</max_step_size>
+            <real_time_update_rate>10000</real_time_update_rate>
+        </physics>
+
+<!--        &lt;!&ndash; Example model &ndash;&gt;-->
+<!--        <include>-->
+<!--            <uri>model://willowgarage</uri>-->
+<!--        </include>-->
+    </world>
 </sdf>
